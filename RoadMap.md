@@ -54,6 +54,10 @@ Tech used
 - store login hash and derived key / IV in SessionStorage (if that doesn't work, use IndexedBD or LocalStorage). If not present => redirect to login. => est-il réellement nécessaire de les stocker localement ?
   Possibilité d'utiliser `additionalData` du [`AesGcmParams`](https://developer.mozilla.org/en-US/docs/Web/API/AesGcmParams) afin de garantir leur intégrité sans les chiffrer.
 
+Passer par un challenge à déchiffrer pour "authentifier" avant de descendre toutes les données ?
+ça revient à stocker une information de l'utilisateur...
+Autant limiter l'accès via un password au minimum, non ?
+
 **Server side**
 
 - Each user will have his own file database

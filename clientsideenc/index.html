@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Client-side encryption test - PBKDF2 / HKDF</title>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.0/milligram.css">
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+    <main>
+
+        <section class="derive-key pbkdf2">
+            <h2>PBKDF2</h2>
+            <section class="derive-key-controls">
+                <div class="message-control">
+                    <label for="pbkdf2-message">Enter a message to encrypt:</label>
+                    <input type="text" id="pbkdf2-message" name="message" size="25" value="The bunny hops at teatime">
+                </div>
+                <div class="ciphertext">Ciphertext:<span class="ciphertext-value"></span></div>
+                <div class="decrypted">Decrypted:<span class="decrypted-value"></span></div>
+
+                <input class="encrypt-button" type="button" value="Encrypt">
+                <input class="decrypt-button" type="button" value="Decrypt">
+
+            </section>
+        </section>
+
+    </main>
+</body>
+
+<script src="pbkdf2.js"></script>
+
+</html>
