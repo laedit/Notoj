@@ -1,15 +1,20 @@
 # Step 1
-- Simple HTML.  
-- Allows to login and save encrypted text in separate database.  
-- Encryption is derived from user password.  
+- Simple HTML.
+- Allows to login and save encrypted text in separate database.
+- Encryption is derived from user password.
 - All new user are accepted by default to not have to handled that for now.
 
 => *Revised* mono-user / is it possible to not need the login?
+=> What if...
+Supposed that setup is done, user is configured (if necessary beyond salt generation?) and a random text serving as proof was generated and encrypted then stored.
+On "logon" (just entering password) use salt previously downloaded on page load, derive the key then decrypt the proof:
+- if all is good then download the notes and decrypt the main one
+- if there is any error since AES-GCM is used, that should suffice to check if the password is the correct one
 
 Tech used
 ---
 - https://www.litedb.org/docs/getting-started/
-- https://blog.cozy.io/fr/gestionnaire-de-mots-de-passe-introduction-cryptographique/ - PBKDF2 
+- https://blog.cozy.io/fr/gestionnaire-de-mots-de-passe-introduction-cryptographique/ - PBKDF2
 
 ![](https://blog.cozy.io/fr/content/images/2020/02/Capture-d-e-cran-2020-02-24-a--15.53.31.png)
 
@@ -24,8 +29,9 @@ Tech used
 - https://prosemirror.net/
 - https://docs.slatejs.org/
     - https://www.slatejs.org/examples/markdown-shortcuts
-    - https://www.slatejs.org/examples/markdown-preview 
+    - https://www.slatejs.org/examples/markdown-preview
 - https://github.com/Ionaru/easy-markdown-editor => markdown natif et auto-save
+- https://lab.lepture.com/editor/ => style
 - https://crypt.ee/press-kit
 - https://crypt.ee/acknowledgements
 
