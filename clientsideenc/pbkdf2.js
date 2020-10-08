@@ -1,8 +1,6 @@
 (() => {
 
-    let salt;
-    let ciphertext;
-    let iv;
+    let ciphertext; // TODO next step: store encrypted text and all necessary data (iv?) in the simulated storage
 
     function buf2hex(buf) {
         return Array.prototype.map.call(new Uint8Array(buf), x => ('00' + x.toString(16)).slice(-2)).join('');
@@ -10,40 +8,28 @@
 
     // ou base64 ?
     /**
-     * 
-     * const keyArray = Array.from(new Uint8Array(keyBuffer));                                      // key as byte array
-    
+        const keyArray = Array.from(new Uint8Array(keyBuffer));                                      // key as byte array
+
         const saltArray = Array.from(new Uint8Array(saltUint8));                                     // salt as byte array
-       
-        const iterHex = ('000000'+iterations.toString(16)).slice(-6);                                // iter’n count as hex
-        const iterArray = iterHex.match(/.{2}/g).map(byte => parseInt(byte, 16));                    // iter’ns as byte array
-    
-        const compositeArray = [].concat(saltArray, iterArray, keyArray);                            // combined array
+
+        const compositeArray = [].concat(saltArray, keyArray);                                       // combined array
         const compositeStr = compositeArray.map(byte => String.fromCharCode(byte)).join('');         // combined as string
-        const compositeBase64 = btoa('v01'+compositeStr);                                            // encode as base64
-     * 
-     * 
-     * 
+        const compositeBase64 = btoa('01' + compositeStr);                                            // encode as base64
+     *
+     *
      * decode
      *   let compositeStr = null; // composite key is salt, iteration count, and derived key
         try { compositeStr = atob(key); } catch (e) { throw new Error ('Invalid key'); }             // decode from base64
-        
-        const version = compositeStr.slice(0, 3);   //  3 bytes
-        const saltStr = compositeStr.slice(3, 19);  // 16 bytes (128 bits)
-        const iterStr = compositeStr.slice(19, 22); //  3 bytes
-        const keyStr  = compositeStr.slice(22, 54); // 32 bytes (256 bits)
-    
-        if (version != 'v01') throw new Error('Invalid key');
-        
-        // -- recover salt & iterations from stored (composite) key
-        
+
+        const version = compositeStr.slice(0, 2);   //  2 bytes
+        const saltStr = compositeStr.slice(2, 18);  // 16 bytes (128 bits)
+        const keyStr  = compositeStr.slice(18, 50); // 32 bytes (256 bits)
+
+        if (version != '01') throw new Error('Invalid key');
+
+        // -- recover salt from stored (composite) key
         const saltUint8 = new Uint8Array(saltStr.match(/./g).map(ch => ch.charCodeAt(0)));           // salt as Uint8Array
         // note: cannot use TextEncoder().encode(saltStr) as it generates UTF-8
-       
-        const iterHex = iterStr.match(/./g).map(ch => ch.charCodeAt(0).toString(16)).join('');       // iter’n count as hex
-        const iterations = parseInt(iterHex, 16);      
-     * 
-     * 
      */
 
     /*
@@ -104,9 +90,13 @@
         decryptedValue.textContent = "";
 
         let keyMaterial = await getKeyMaterial();
-        salt = window.crypto.getRandomValues(new Uint8Array(16));
+        let salt = window.crypto.getRandomValues(new Uint8Array(16));
+        // store keyphrase salt
+        storeArray("salt", salt);
         let key = await getKey(keyMaterial, salt);
-        iv = window.crypto.getRandomValues(new Uint8Array(12));
+        let iv = window.crypto.getRandomValues(new Uint8Array(12));
+        // store iv
+        storeArray("iv", iv);
         let encoded = getMessageEncoding();
 
         ciphertext = await window.crypto.subtle.encrypt(
@@ -118,8 +108,8 @@
             encoded
         );
 
-        let buffer = new Uint8Array(ciphertext, 0, 5);
-        ciphertextValue.textContent = `${buf2hex(ciphertext)}|${buf2hex(salt)}|${buf2hex(iv)}`;// `${buffer}...[${ciphertext.byteLength} bytes total]`;
+        // let buffer = new Uint8Array(ciphertext, 0, 5);
+        ciphertextValue.textContent = btoa(ciphertext);// `${buffer}...[${ciphertext.byteLength} bytes total]`;
     }
 
     /*
@@ -136,13 +126,13 @@
         decryptedValue.classList.remove("error");
 
         let keyMaterial = await getKeyMaterial();
-        let key = await getKey(keyMaterial, salt);
+        let key = await getKey(keyMaterial, retrieveFromStorage("salt"));
 
         try {
             let decrypted = await window.crypto.subtle.decrypt(
                 {
                     name: "AES-GCM",
-                    iv: iv
+                    iv: retrieveFromStorage("iv")
                 },
                 key,
                 ciphertext
@@ -163,3 +153,13 @@
     const decryptButton = document.querySelector(".pbkdf2 .decrypt-button");
     decryptButton.addEventListener("click", decrypt);
 })();
+
+function storeArray(key, array) {
+    sessionStorage.setItem(key, btoa(array));
+}
+
+function retrieveFromStorage(key) {
+    return Uint8Array.from(atob(sessionStorage.getItem(key)).split(",").map(ch => Number(ch)));
+}
+
+
